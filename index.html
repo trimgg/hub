@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trim.</title>
+    <link rel="icon" type="image/png" href="https://www.transparentpng.com/download/emoticons/thinking-blue-emoticons-hd-transparent-1b3uLJ.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #467983;
+            --bg: #000000;
+            --border: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255,255,255,0.03) 1.5px, transparent 1.5px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black, transparent 90%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* --- Liquid Navigation System --- */
+        .nav-wrapper {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            padding: 6px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 16px;
+            padding: 0 20px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            margin-right: 8px;
+        }
+
+        .nav-links-container {
+            position: relative;
+            display: flex;
+            gap: 4px;
+        }
+
+        #nav-indicator {
+            position: absolute;
+            height: 100%;
+            background: rgba(70, 121, 131, 0.25);
+            border: 1px solid rgba(70, 121, 131, 0.4);
+            border-radius: 14px;
+            /* Smoother, springy liquid transition */
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .nav-link {
+            padding: 8px 20px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover { color: #fff; }
+        .nav-active { color: var(--accent) !important; }
+
+        /* --- Page Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .page-tab { display: none; animation: tabSwap 0.5s ease forwards; }
+        .page-tab.active { display: block; }
+        @keyframes tabSwap {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            font-size: clamp(3.5rem, 10vw, 7.5rem);
+            line-height: 0.85;
+            letter-spacing: -0.06em;
+            font-weight: 800;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .glass-card:hover { 
+            border-color: rgba(70, 121, 131, 0.4); 
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* --- Premium Buttons --- */
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(70, 121, 131, 0.4); }
+        .btn-premium::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+        .btn-premium:hover::after { left: 100%; }
+
+        .bottom-spacer { padding-bottom: 250px; }
+    </style>
+</head>
+<body onload="moveIndicator(document.getElementById('nav-home'))">
+
+    <div class="bg-grid"></div>
+
+    <div class="nav-wrapper">
+        <div class="nav-logo">trim<span class="text-[#467983]">.</span></div>
+        <div class="nav-links-container">
+            <div id="nav-indicator"></div>
+            <button onclick="switchTab('home', this)" id="nav-home" class="nav-link nav-active">Home</button>
+            <button onclick="switchTab('docs', this)" id="nav-docs" class="nav-link">Commands</button>
+            <button onclick="switchTab('rewards', this)" id="nav-rewards" class="nav-link">Rewards</button>
+            <button onclick="switchTab('devs', this)" id="nav-devs" class="nav-link">Developers</button>
+        </div>
+    </div>
+
+    <div id="home-tab" class="page-tab active">
+        <section class="min-h-screen flex flex-col items-center justify-center text-center px-8">
+            <div class="reveal mb-6">
+                <span class="px-4 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.3em] text-[#467983]">
+                    + Trim Architecture
+                </span>
+            </div>
+            <h1 class="reveal hero-title mb-8">
+                The next <br/> <span class="text-gray-500">standard.</span>
+            </h1>
+            <p class="reveal text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
+                trim.gw and trim.gg are high-performance Discord utility bots designed to handle everything from complex moderation to automated server growth.
+            </p>
+            <div class="reveal flex gap-6">
+                <button onclick="switchTab('docs', document.getElementById('nav-docs'))" class="btn-premium group flex items-center gap-3 bg-white text-black px-10 py-4 rounded-2xl text-sm font-extrabold transition-all">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                    Commands
+                </button>
+                <button onclick="switchTab('rewards', document.getElementById('nav-rewards'))" class="btn-premium group flex items-center gap-3 bg-white/5 border border-white/10 px-10 py-4 rounded-2xl text-sm font-extrabold hover:bg-white/10 transition-all">
+                    <i data-lucide="gem" class="w-4 h-4 text-[#467983]"></i>
+                    View Rewards
+                </button>
+            </div>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-8 space-y-24 bottom-spacer">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="reveal glass-card p-10 rounded-[2.5rem] md:col-span-2">
+                    <i data-lucide="shield-check" class="w-10 h-10 text-[#467983] mb-8"></i>
+                    <h3 class="text-3xl font-bold mb-4">Hardened Security</h3>
+                    <p class="text-gray-500 max-w-md">Vaults permissions and requirements into our database to ensure malicious access is impossible.</p>
+                </div>
+                <div class="reveal glass-card p-10 rounded-[2.5rem]">
+                    <i data-lucide="activity" class="w-10 h-10 text-[#467983] mb-8"></i>
+                    <h3 class="text-3xl font-bold mb-4">96.8% Uptime</h3>
+                    <p class="text-gray-500">Always online system, with redundant backup features to ensure zero downtime.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="reveal glass-card p-10 rounded-[3rem]">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-[#467983] mb-4">Core Engine</h4>
+                    <h3 class="text-4xl font-extrabold mb-6 tracking-tight">Multi-Shard Scalability</h3>
+                    <p class="text-gray-400 leading-relaxed">Built to survive during peak-usage times, to ensure that the bot never fails when it is needed most.</p>
+                    <div class="mt-8 flex gap-4">
+                        <div class="bg-white/5 rounded-xl px-4 py-2 border border-white/5">
+                            <span class="block text-xs font-bold text-gray-500 uppercase">Latency</span>
+                            <span class="text-sm font-mono text-white">~54ms (slow)</span>
+                        </div>
+                        <div class="bg-white/5 rounded-xl px-4 py-2 border border-white/5">
+                            <span class="block text-xs font-bold text-gray-500 uppercase">Memory</span>
+                            <span class="text-sm font-mono text-white">100gb+ available</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal glass-card p-10 rounded-[3rem] bg-gradient-to-br from-[#467983]/5 to-transparent">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-[#467983] mb-4">Global Security</h4>
+                    <h3 class="text-4xl font-extrabold mb-6 tracking-tight">Privacy First</h3>
+                    <p class="text-gray-400 leading-relaxed">Uses private databases to ensure your data is secure at all times, and backed up incase of an outage.</p>
+                    <div class="mt-10 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-[#467983] w-3/4 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+                <div class="reveal">
+                    <h2 class="text-5xl font-bold mb-6 tracking-tighter">Automating <br/>community workflow.</h2>
+                    <p class="text-gray-500 mb-8 leading-relaxed">Handling the manual labor so you can focus on growth.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-[#467983]"></i> Dynamic Booster Roles
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-[#467983]"></i> Button-Based Giveaways
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-[#467983]"></i> Personal Channel locking
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-300">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-[#467983]"></i> Secure User Management
+                        </li>
+                    </ul>
+                </div>
+                <div class="reveal glass-card p-8 rounded-3xl aspect-square flex items-center justify-center">
+                    <i data-lucide="code" class="w-32 h-32 text-white/5"></i>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="docs-tab" class="page-tab pt-48 min-h-screen">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="reveal mb-16 flex flex-col md:flex-row md:items-end justify-between gap-10">
+                <h2 class="text-6xl font-extrabold tracking-tighter">Library</h2>
+                <div class="relative w-full md:w-96">
+                    <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                    <input type="text" id="command-search" placeholder="Search commands..." 
+                           class="w-full bg-white/[0.04] border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#467983]/50 transition-all font-medium text-white placeholder:text-gray-600">
+                </div>
+            </div>
+            <div id="command-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bottom-spacer"></div>
+        </div>
+    </div>
+
+    <div id="rewards-tab" class="page-tab pt-48 min-h-screen">
+        <div class="max-w-7xl mx-auto px-8">
+            <h2 class="reveal text-7xl font-extrabold tracking-tighter mb-16 text-center">Rewards</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bottom-spacer">
+                <div class="reveal glass-card p-16 rounded-[4rem]">
+                    <i data-lucide="rocket" class="w-12 h-12 text-[#467983] mb-8"></i>
+                    <h3 class="text-4xl font-extrabold mb-6 tracking-tighter">Boosters</h3>
+                    <p class="text-gray-500 text-lg font-medium">Create your own custom identity within the server.</p>
+                </div>
+                <div class="reveal glass-card p-16 rounded-[4rem] flex flex-col justify-between">
+                    <div>
+                        <i data-lucide="star" class="w-12 h-12 text-yellow-500/80 mb-8"></i>
+                        <h3 class="text-4xl font-extrabold mb-6 tracking-tighter">Donors</h3>
+                        <p class="text-gray-500 text-lg font-medium">Global special roles, and benefits accross trim.gg supported servers.</p>
+                    </div>
+                    <a href="https://www.roblox.com/games/137233343680151/yv#!/store" target="_blank" class="block w-full mt-10">
+    <button class="w-full py-6 bg-white text-black rounded-3xl font-black text-sm uppercase tracking-widest hover:bg-gray-200 transition">
+        Donate via Roblox
+    </button>
+</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="devs-tab" class="page-tab pt-48 min-h-screen">
+        <div class="max-w-6xl mx-auto px-8">
+            <h2 class="reveal text-7xl font-extrabold tracking-tighter mb-16 text-center">Developers</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 bottom-spacer">
+                <div class="reveal glass-card lg:col-span-8 p-6 rounded-[3rem] overflow-hidden">
+                    <a href="https://discord.com/users/1411379407578206298" target="_blank">
+                        <img src="https://lanyard.cnrad.dev/api/1411379407578206298?showDisplayName=true&hideStatus=true&theme=dark" class="w-full rounded-[2.5rem]">
+                    </a>
+                </div>
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="reveal glass-card p-10 rounded-[3rem]">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-4">Version</span>
+                        <div class="text-3xl font-extrabold">v2.5.1 <span class="text-[#467983]">Stable</span></div>
+                    </div>
+                    <div class="reveal glass-card p-10 rounded-[3rem]">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-4">Environment</span>
+                        <div class="text-3xl font-extrabold">Production</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const commands = [
+            { name: ',br setup', desc: 'Auto-initialize the booster role infrastructure.', perm: 'Booster', icon: 'settings-2' },
+            { name: ',br name', desc: 'Modify the identity of your custom role.', perm: 'Booster', icon: 'type' },
+            { name: ',br colour', desc: 'Apply a custom hex color to your booster role.', perm: 'Booster', icon: 'palette' },
+            { name: ',br icon', desc: 'Apply a custom icon to your booster role.', perm: 'Booster', icon: 'palette' },
+            { name: ',br delete', desc: 'Delete your booster role.', perm: 'Booster', icon: 'settings-2' },
+            { name: ',gw', desc: 'Initialize an interactive button-based giveaway.', perm: 'Admin', icon: 'gift' },
+            { name: ',gwr', desc: 'Re-rolls a giveaway upon finishing.', perm: 'Admin', icon: 'repeat' },
+            { name: ',gws', desc: 'Provides a list of ongoing giveaways', perm: 'Everyone', icon: 'gift' },
+            { name: ',whois', desc: 'Retrieve deep audit data for a target user.', perm: 'Admin', icon: 'fingerprint' },
+            { name: ',uptime', desc: 'Check current system session stability.', perm: 'Everyone', icon: 'activity' },
+            { name: ',roblox', desc: 'Parse data from Roblox API endpoints.', perm: 'Admin', icon: 'gamepad-2' },
+            { name: ',github', desc: 'Fetch github profile info.', perm: 'Admin', icon: 'github' },
+            { name: ',rservers', desc: 'View active Buckingham Palace Roblox servers.', perm: 'Admin', icon: 'box' },
+            { name: ',tr', desc: 'Universal translation layer for English.', perm: 'Everyone', icon: 'globe' },
+            { name: ',language', desc: 'Notify users about english policies', perm: 'Everyone', icon: 'languages' },
+            { name: ',donor', desc: 'Sends a link to our donations page', perm: 'Everyone', icon: 'star' },
+            { name: ',ir', desc: 'Shows users in a given role.', perm: 'Admin', icon: 'box' },
+            { name: ',help', desc: 'Shows a list of commands.', perm: 'Everyone, Admins, Integration', icon: 'info' },
+            { name: ',lock', desc: 'Locks a channel to prevent messaging.', perm: 'Admin', icon: 'folder-lock' },
+            { name: ',unlock', desc: 'Unlocks a channel to allow global messaging.', perm: 'Admin', icon: 'message-circle' },
+            { name: ',nick', desc: 'Changes a user nickname.', perm: 'Admin', icon: 'user-cog' },
+            { name: ',ping', desc: 'Measure gateway heartbeat and shard latency.', perm: 'Everyone', icon: 'gauge' }
+        ];
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+                else entry.target.classList.remove('visible');
+            });
+        }, { threshold: 0.1 });
+
+        function initScrollReveal() {
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // Fixed Indicator Logic for smoother movement
+        function moveIndicator(element) {
+            const indicator = document.getElementById('nav-indicator');
+            if (!element) return;
+            indicator.style.width = element.offsetWidth + 'px';
+            indicator.style.left = element.offsetLeft + 'px';
+        }
+
+        function switchTab(tabId, element) {
+            moveIndicator(element);
+
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('nav-active'));
+            element.classList.add('nav-active');
+
+            document.querySelectorAll('.page-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible'));
+            });
+
+            const activeTab = document.getElementById(tabId + '-tab');
+            activeTab.classList.add('active');
+            
+            if(tabId === 'docs') renderCommands();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(initScrollReveal, 100);
+        }
+
+        function renderCommands(filter = '') {
+            const list = document.getElementById('command-list');
+            if(!list) return;
+            list.innerHTML = '';
+            
+            const filtered = commands.filter(c => 
+                c.name.toLowerCase().includes(filter.toLowerCase()) || 
+                c.desc.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filtered.forEach((c) => {
+                const block = document.createElement('div');
+                block.className = 'reveal glass-card p-10 rounded-[2.5rem] flex flex-col';
+                block.innerHTML = `
+                    <div class="flex items-center gap-4 mb-8">
+                        <i data-lucide="${c.icon}" class="w-6 h-6 text-[#467983]"></i>
+                        <span class="font-mono font-black text-white text-base">${c.name}</span>
+                    </div>
+                    <p class="text-gray-500 text-sm mb-10 flex-grow">${c.desc}</p>
+                    <div class="flex items-center justify-between pt-6 border-t border-white/5">
+                        <span class="text-[9px] font-black text-gray-600 uppercase">Access</span>
+                        <span class="px-3 py-1 rounded-full bg-white/5 text-[9px] font-black text-[#467983] uppercase">${c.perm}</span>
+                    </div>`;
+                list.appendChild(block);
+            });
+            lucide.createIcons();
+            initScrollReveal();
+        }
+
+        // Fixed Search Bar Logic
+        document.getElementById('command-search').addEventListener('input', (e) => {
+            renderCommands(e.target.value);
+        });
+
+        renderCommands();
+        initScrollReveal();
+    </script>
+</body>
+</html>
